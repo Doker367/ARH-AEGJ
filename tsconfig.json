@@ -1,13 +1,21 @@
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*"]
-}
+import { InMemoryUserRepository } from './adapters/out/in-memory/in-memory-user.repository';
+import { AuthenticateUserUseCase } from './application/use-cases/authenticate-user.use-case';
+import { createUserController } from './adapters/in/http/user.controller';
+import { createServer } from './infrastructure/web/express';
+
+const userRepository = new InMemoryUserRepository();
+
+userRepository.save({ username: 'alberto.grajales97@unach.mx', password: '100000361' });
+
+const authenticateUserUseCase = new AuthenticateUserUseCase(userRepository);
+
+const userController = createUserController(authenticateUserUseCase);
+
+const app = createServer(userController);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en:  http://localhost:${PORT}`);
+  console.log('Intenta logearte:');
+  console.log(` '{"usuario": "alberto.grajales97@unach.mx", "contraseña": "100000361"}'`);
+});
